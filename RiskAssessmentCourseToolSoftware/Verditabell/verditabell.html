@@ -1,0 +1,285 @@
+
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verditabell</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            resize: both;
+            overflow: auto;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+            min-width: 150px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        button {
+            margin-right: 10px;
+        }
+        .resizer {
+            display: inline-block;
+            width: 10px;
+            height: 100%;
+            cursor: col-resize;
+            position: absolute;
+            right: 0;
+            top: 0;
+            transform: translateX(50%);
+        }
+        th {
+            position: relative;
+        }
+        tr.selected {
+            background-color: #d0eaff;
+        }
+    </style>
+</head>
+<body>
+    <h2>Verditabell</h2>
+    <table id="valueTable">
+        <thead>
+            <tr>
+                <th>Verdi<div class="resizer"></div></th>
+                <th>Beskrivelse<div class="resizer"></div></th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Initial 5 rows -->
+            <tr><td contenteditable="true"></td><td contenteditable="true"></td></tr>
+            <tr><td contenteditable="true"></td><td contenteditable="true"></td></tr>
+            <tr><td contenteditable="true"></td><td contenteditable="true"></td></tr>
+            <tr><td contenteditable="true"></td><td contenteditable="true"></td></tr>
+            <tr><td contenteditable="true"></td><td contenteditable="true"></td></tr>
+        </tbody>
+    </table>
+    <button onclick="addRowBelow()">Legg til rad under</button>
+    <button onclick="addRowAbove()">Legg til rad over</button>
+    <button onclick="deleteRow()">Slett rad</button>
+    <button onclick="saveTable()">Lagre data</button>
+    <button onclick="loadTable()">Last inn data</button>
+    <button onclick="undoAction()">Angre</button>
+    <button onclick="clearAll()">Slett alle</button>
+    <input type="file" id="fileInput" style="display:none" onchange="loadFromFile(event)">
+    <input type="hidden" id="previousState">
+
+<h3>Merk </h3>
+<ul>
+<li>En verdi er noe risikovurderingen skal bidra til å beskytte </li>
+<li>Verdiene identifiseres på vegne av en interessent </li>
+<li>Interessenten er vanligvis arbeidsgiver eller kunden for vurderingen </li>
+<li>Fokuser på de viktigste verdiene; typisk fire til seks </li>
+<li>Beskrivelsen må være nøyaktig slik at andre forstår hva du mener</li> 
+<li>Eksempler på kategorier av verdier: Informasjon, Immaterielle verdier, Folk, Maskinvare, Programvare, Tjenester, Infrastruktur</li>
+</ul>
+
+    <script>
+	'use strict';
+        const table = document.getElementById('valueTable').getElementsByTagName('tbody')[0];
+        const previousStateInput = document.getElementById('previousState');
+        let undoStack = [];
+        let redoStack = [];
+        let selectedRowIndex = null;
+
+        document.querySelectorAll('.resizer').forEach(resizer => {
+            resizer.addEventListener('mousedown', initResize);
+        });
+
+        document.querySelectorAll('#valueTable tbody tr').forEach(row => {
+            row.addEventListener('click', () => selectRow(row));
+        });
+
+        function initResize(e) {
+            savePreviousState();
+            const th = e.target.parentElement;
+            const startX = e.clientX;
+            const startWidth = th.offsetWidth;
+
+            function doDrag(e) {
+                th.style.width = startWidth + (e.clientX - startX) + 'px';
+            }
+
+            function stopDrag() {
+                document.documentElement.removeEventListener('mousemove', doDrag, false);
+                document.documentElement.removeEventListener('mouseup', stopDrag, false);
+            }
+
+            document.documentElement.addEventListener('mousemove', doDrag, false);
+            document.documentElement.addEventListener('mouseup', stopDrag, false);
+        }
+
+        function addRowBelow() {
+            savePreviousState();
+            const newRow = table.insertRow(selectedRowIndex === null ? table.rows.length : selectedRowIndex + 1);
+            const cell1 = newRow.insertCell(0);
+            const cell2 = newRow.insertCell(1);
+            cell1.contentEditable = "true";
+            cell2.contentEditable = "true";
+            addEditableListeners(newRow);
+
+            if (selectedRowIndex === null && table.rows.length === 1) {
+                selectRow(newRow);
+            }
+        }
+
+        function addRowAbove() {
+            savePreviousState();
+            const newRow = table.insertRow(selectedRowIndex === null ? 0 : selectedRowIndex);
+            const cell1 = newRow.insertCell(0);
+            const cell2 = newRow.insertCell(1);
+            cell1.contentEditable = "true";
+            cell2.contentEditable = "true";
+            addEditableListeners(newRow);
+
+            if (selectedRowIndex === null && table.rows.length === 1) {
+                selectRow(newRow);
+            }
+        }
+
+        function deleteRow() {
+            if (selectedRowIndex === null) {
+                alert("Velg en rad først");
+                return;
+            }
+            savePreviousState();
+            table.deleteRow(selectedRowIndex);
+            selectedRowIndex = null;
+        }
+
+        function saveTable() {
+            savePreviousState();
+            const rows = [...table.rows].map(row => {
+                const cells = row.cells;
+                return {
+                    verdi: cells[0].textContent,
+                    beskrivelse: cells[1].textContent
+                };
+            });
+            const dataStr = JSON.stringify(rows, null, 2);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const fileName = prompt("Navn på filen:", "verditabell.json");
+            if (fileName) {
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        function loadTable() {
+            savePreviousState();
+            document.getElementById('fileInput').click();
+        }
+
+        function loadFromFile(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                   const content = e.target.result;
+                   const rows = JSON.parse(content);
+                   clearAll(false);
+                   rows.forEach(row => {
+                      const newRow = table.insertRow();
+                      const cell1 = newRow.insertCell(0);
+                      const cell2 = newRow.insertCell(1);
+                      cell1.contentEditable = "true";
+                      cell2.contentEditable = "true";
+                      cell1.textContent = row.verdi;
+                      cell2.textContent = row.beskrivelse;
+                      addEditableListeners(newRow);
+                  });
+              } catch (error) {
+                   alert("Error loading file: Invalid format.");
+              }
+           };
+           reader.readAsText(file);
+        }
+
+        function undoAction() {
+            if (undoStack.length > 0) {
+                const previousState = undoStack.pop();
+                redoStack.push(JSON.stringify(getCurrentState()));
+                restoreState(previousState);
+            }
+        }
+
+        function clearAll(saveState = true) {
+            if (saveState) {
+                savePreviousState();
+            }
+            while (table.rows.length > 0) {
+                table.deleteRow(0);
+            }
+            selectedRowIndex = null;
+        }
+
+        function savePreviousState() {
+            undoStack.push(JSON.stringify(getCurrentState()));
+            redoStack = [];
+        }
+
+        function getCurrentState() {
+            return [...table.rows].map(row => {
+                const cells = row.cells;
+                return {
+                    verdi: cells[0].textContent,
+                    beskrivelse: cells[1].textContent
+                };
+            });
+        }
+
+        function restoreState(state) {
+            clearAll(false);
+            const rows = JSON.parse(state);
+            rows.forEach(row => {
+                const newRow = table.insertRow();
+                const cell1 = newRow.insertCell(0);
+                const cell2 = newRow.insertCell(1);
+                cell1.contentEditable = "true";
+                cell2.contentEditable = "true";
+                cell1.textContent = row.verdi;
+                cell2.textContent = row.beskrivelse;
+                addEditableListeners(newRow);
+            });
+        }
+
+        function addEditableListeners(row) {
+            Array.from(row.cells).forEach(cell => {
+                cell.addEventListener('focus', savePreviousState);
+                cell.addEventListener('input', savePreviousState);
+                row.addEventListener('click', () => selectRow(row));
+            });
+        }
+
+        function selectRow(row) {
+            if (selectedRowIndex !== null) {
+                table.rows[selectedRowIndex].classList.remove('selected');
+            }
+            selectedRowIndex = row.rowIndex - 1;
+            row.classList.add('selected');
+        }
+
+       
+        document.querySelectorAll('#valueTable tbody tr').forEach(addEditableListeners);
+
+
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Risikotabell</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            resize: both;
+            overflow: auto;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+            min-width: 150px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    	.highlight {
+       	    font-weight: bold;         /* Bold text */
+    	}
+        button {
+            margin-right: 10px;
+        }
+        .resizer {
+            display: inline-block;
+            width: 10px;
+            height: 100%;
+            cursor: col-resize;
+            position: absolute;
+            right: 0;
+            top: 0;
+            transform: translateX(50%);
+        }
+        th {
+            position: relative;
+        }
+        tr.selected {
+            background-color: #d0eaff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Konsekvensskala</h2>
+    <table id="consequenceScale">
+        <thead>
+            <tr>
+                <th>Verdi<div class="resizer"></div></th>
+                <th>Beskrivelse<div class="resizer"></div></th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Initial 5 rows -->
+            <tr><td contenteditable="false" class="highlight">Svært høy</td><td contenteditable="true">Vesentlig økonomisk tap; konkurs eller oppsigelser truer</td></tr>
+            <tr><td contenteditable="false" class="highlight">Høy</td><td contenteditable="true">Stort økonomisk tap, forutsetter ingen vesentlig kursendring</td></tr>
+            <tr><td contenteditable="false" class="highlight">Moderat</td><td contenteditable="true">Økonomisk tap som helst skulle vært unngått</td></tr>
+            <tr><td contenteditable="false" class="highlight">Lav</td><td contenteditable="true">Et lite økonomisk tap eller små skader</td></tr>
+            <tr><td contenteditable="false" class="highlight">Svært lav</td><td contenteditable="true">Kun minimale tap eller skader; ingen betydning for driften</td></tr>
+        </tbody>
+    </table>
+
+    
+    <button onclick="saveConsequences()">Lagre konsekvensdefinisjoner</button>
+    <button onclick="loadConsequences()">Last inn konsekvensdefinisjoner</button>
+    <button onclick="undoAction()">Angre</button>
+
+
+
+    <h2>Hyppighetsskala</h2>
+    <table id="frequencyScale">
+        <thead>
+            <tr>
+                <th>Verdi<div class="resizer"></div></th>
+                <th>Beskrivelse<div class="resizer"></div></th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Initial 5 rows -->
+            <tr><td contenteditable="false" class="highlight">Svært høy</td><td contenteditable="true">Et svært høyt antall tilsvarende hendelser allerede registrert; forekommer daglig på samme sted, i
+samme situasjon eller til samme tid</td></tr>
+            <tr><td contenteditable="false" class="highlight">Høy</td><td contenteditable="true">Et høyt antall tilsvarende hendelser allerede registrert; forekommer ukentlig på samme sted, i samme
+situasjon eller til samme tid</td></tr>
+            <tr><td contenteditable="false" class="highlight">Moderat</td><td contenteditable="true">Mange tilsvarende hendelser allerede registrert</td></tr>
+            <tr><td contenteditable="false" class="highlight">Lav</td><td contenteditable="true">Kun et fåtall tilsvarende hendelser registrert; forkommer sjelden på samme sted, i samme situasjon
+eller til samme tid</td></tr>
+            <tr><td contenteditable="false" class="highlight">Svært lav</td><td contenteditable="true">Har ikke forekommet til dags dato; anses som usannsynlig</td></tr>
+        </tbody>
+    </table>
+
+    <button onclick="saveFrequencies()">Lagre hyppighetsdefinisjoner</button>
+    <button onclick="loadFrequencies()">Last inn hyppighetsdefinisjoner</button>
+    <button onclick="undoAction()">Angre</button>
+
+<h2>Risikotabell</h2>
+    <table id="riskTable">
+        <thead>
+            <tr>
+                <th>Risikonummer<div class="resizer"></div></th>
+                <th>Uønska hendelse<div class="resizer"></div></th>
+                <th>Konsekvens<div class="resizer"></div></th>
+                <th>Hyppighet<div class="resizer"></div></th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Initial 5 rows -->
+            <tr><td>1</td><td contenteditable="true"></td><td><select><option value="" disabled selected>Velg</option><option>Svært høy</option><option>Høy</option><option>Moderat</option><option>Lav</option><option>Svært lav</option></select></td><td><select><option value="" disabled selected>Velg</option><option>Svært høy</option><option>Høy</option><option>Moderat</option><option>Lav</option><option>Svært lav</option></select></td></tr>
+
+            <tr><td>2</td><td contenteditable="true"></td><td><select><option value="" disabled selected>Velg</option><option>Svært høy</option><option>Høy</option><option>Moderat</option><option>Lav</option><option>Svært lav</option></select></td><td><select><option value="" disabled selected>Velg</option><option>Svært høy</option><option>Høy</option><option>Moderat</option><option>Lav</option><option>Svært lav</option></select></td></tr>
+
+            <tr><td>3</td><td contenteditable="true"></td><td><select><option value="" disabled selected>Velg</option><option>Svært høy</option><option>Høy</option><option>Moderat</option><option>Lav</option><option>Svært lav</option></select></td><td><select><option value="" disabled selected>Velg</option><option>Svært høy</option><option>Høy</option><option>Moderat</option><option>Lav</option><option>Svært lav</option></select></td></tr>
+
+            <tr><td>4</td><td contenteditable="true"></td><td><select><option value="" disabled selected>Velg</option><option>Svært høy</option><option>Høy</option><option>Moderat</option><option>Lav</option><option>Svært lav</option></select></td><td><select><option value="" disabled selected>Velg</option><option>Svært høy</option><option>Høy</option><option>Moderat</option><option>Lav</option><option>Svært lav</option></select></td></tr>
+
+            <tr><td>5</td><td contenteditable="true"></td><td><select><option value="" disabled selected>Velg</option><option>Svært høy</option><option>Høy</option><option>Moderat</option><option>Lav</option><option>Svært lav</option></select></td><td><select><option value="" disabled selected>Velg</option><option>Svært høy</option><option>Høy</option><option>Moderat</option><option>Lav</option><option>Svært lav</option></select></td></tr>
+        </tbody>
+    </table>
+    <button onclick="addRowBelow()">Legg til rad under</button>
+    <button onclick="addRowAbove()">Legg til rad over</button>
+    <button onclick="deleteRow()">Slett rad</button>
+    <button onclick="saveTable()">Lagre risikotabell</button>
+    <button onclick="loadTable()">Last inn risikotabell</button>
+    <button onclick="undoAction()">Angre</button>
+    <button onclick="clearAll()">Slett alle</button>
+    <button onclick="loadUonskaHendelser()">Last inn uønska hendelser</button>
+    <input type="file" id="fileInput" style="display:none" onchange="loadFromFile(event)">
+    <input type="file" id="uonskaHendelserFileInput" style="display:none" onchange="loadUonskaHendelserFromFile(event)">
+    <input type="hidden" id="previousState">
+
+<h3>Merk </h3>
+<ul>
+<li>Konsekvens er et mål på skaden/tapet forårsaket av en uønska hendelse med hensyn til den aktuelle verdien</li>
+<li>Hyppighet er et mål på hvor ofte den unønska hendelsen skjer</li>
+<li>En risiko består av en unøska hendelse, dens konsekvens og dens hyppighet</li>
+</ul>
+
+<script>
+'use strict';
+let undoStack = [];
+let redoStack = [];
+    
+
+// Function to save the consequence scale in JSON format and download it as a file 
+
+function saveConsequences() { 
+    // Get the table rows
+    const crows = document.querySelectorAll("#consequenceScale tbody tr");
+
+    // Array to hold the table data
+    const consequenceData = [];
+
+    // Iterate over each row
+    crows.forEach((row) => {
+    // Get the columns
+    const ccolumns = row.querySelectorAll("td");
+    // Save data
+    consequenceData.push({
+        verdi: ccolumns[0].textContent,
+        beskrivelse: ccolumns[1].textContent
+        });
+    });
+
+    // Convert the data to JSON format
+    const jsonData = JSON.stringify(consequenceData, null, 2);
+
+    // Ask the user for the file name
+    const fileName = prompt("Navn på filen:", "konsekvensskala.json");
+    if (fileName) {
+        // Create a blob from the JSON data
+        const blob = new Blob([jsonData], { type: "application/json" });
+
+        // Create a temporary link element
+        const a = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        a.href = url;
+        a.download = fileName;
+
+        // Append the link to the body, click it, then remove it
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        // Revoke the object URL to free up memory
+        URL.revokeObjectURL(url);
+        
+    }
+}
+
+// Function to load the second column from the json file for consequences
+
+function loadConsequences() {
+    const cinput = document.createElement("input");
+    cinput.type = "file";
+    cinput.accept = ".json";
+    cinput.onchange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const savedData = JSON.parse(e.target.result);
+
+                    if (savedData && savedData.length === 5) { // Ensure 5 rows are maintained
+                        const rows = document.querySelectorAll("#consequenceScale tbody tr");
+                        rows.forEach((row, index) => {
+                            row.cells[1].textContent = savedData[index].beskrivelse || '';
+                        });
+                    } else {
+                        alert("Filen må inneholde nøyaktig 5 rader.");
+                    }
+                } catch (error) {
+                    alert("Kunne ikke lese filen. Kontroller at den er i riktig format.");
+                }
+            };
+            reader.readAsText(file);
+        }
+    };
+    document.body.appendChild(cinput);
+    cinput.click();
+    document.body.removeChild(cinput);
+}
+
+
+
+
+// Function to save the frequency scale in JSON format and download it as a file
+
+function saveFrequencies() {
+    // Get the table rows
+    const frows = document.querySelectorAll("#frequencyScale tbody tr");
+
+    // Array to hold the table data
+    const frequencyData = [];
+
+
+    // Iterate over each row
+    frows.forEach((row) => {
+       // Get the columns
+       const fcolumns = row.querySelectorAll("td");
+       // Save data
+       frequencyData.push({
+           verdi: fcolumns[0].textContent,
+           beskrivelse: fcolumns[1].textContent
+        });
+    });
+
+
+    // Convert the data to JSON format
+    const jsonData = JSON.stringify(frequencyData, null, 2);
+
+    // Ask the user for the file name
+    const fileName = prompt("Navn på filen:", "hyppighetsskala.json");
+    if (fileName) {
+        // Create a blob from the JSON data
+        const blob = new Blob([jsonData], { type: "application/json" });
+
+        // Create a temporary link element
+        const a = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        a.href = url;
+        a.download = fileName;
+
+        // Append the link to the body, click it, then remove it
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        // Revoke the object URL to free up memory
+        URL.revokeObjectURL(url);
+        
+    }
+}
+
+// Function to load the second column from the json file for frequencies
+
+function loadFrequencies() {
+    // Create a file input element
+    const finput = document.createElement("input");
+    finput.type = "file";
+    finput.accept = ".json";
+    finput.onchange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const savedData = JSON.parse(e.target.result);
+
+                    if (savedData && savedData.length === 5) { // Ensure 5 rows are maintained
+                        const rows = document.querySelectorAll("#frequencyScale tbody tr");
+                        rows.forEach((row, index) => {
+                            row.cells[1].textContent = savedData[index].beskrivelse || '';
+                        });
+                    } else {
+                        alert("Filen må inneholde nøyaktig 5 rader.");
+                    }
+                } catch (error) {
+                    alert("Kunne ikke lese filen. Kontroller at den er i riktig format.");
+                }
+            };
+            reader.readAsText(file);
+        }
+    };
+
+    document.body.appendChild(finput);
+    finput.click();
+    document.body.removeChild(finput);
+}
+
+
+const table = document.getElementById('riskTable').getElementsByTagName('tbody')[0];
+const previousStateInput = document.getElementById('previousState');
+
+let selectedRowIndex = null;
+
+        document.querySelectorAll('.resizer').forEach(resizer => {
+            resizer.addEventListener('mousedown', initResize);
+        });
+
+        document.querySelectorAll('#riskTable tbody tr').forEach(row => {
+            row.addEventListener('click', () => selectRow(row));
+        });
+
+        function initResize(e) {
+            const th = e.target.parentElement;
+            const startX = e.clientX;
+            const startWidth = th.offsetWidth;
+
+            function doDrag(e) {
+                th.style.width = startWidth + (e.clientX - startX) + 'px';
+            }
+
+            function stopDrag() {
+                document.documentElement.removeEventListener('mousemove', doDrag, false);
+                document.documentElement.removeEventListener('mouseup', stopDrag, false);
+            }
+
+            document.documentElement.addEventListener('mousemove', doDrag, false);
+            document.documentElement.addEventListener('mouseup', stopDrag, false);
+        }
+
+// Add row below in risk table
+
+
+function addRowBelow() {
+    const newRow = table.insertRow(selectedRowIndex === null ? table.rows.length : selectedRowIndex + 1);
+    const cell1 = newRow.insertCell(0);
+    const cell2 = newRow.insertCell(1);
+    const cell3 = newRow.insertCell(2);
+    const cell4 = newRow.insertCell(3);
+    cell1.textContent = newRow.rowIndex; // Correct numbering after insert
+    cell2.contentEditable = "true";
+    cell3.innerHTML = '<select><option value="" disabled selected>Velg</option><option>Svært høy</option><option>Høy</option><option>Moderat</option><option>Lav</option><option>Svært lav</option></select>';
+    cell4.innerHTML = '<select><option value="" disabled selected>Velg</option><option>Svært høy</option><option>Høy</option><option>Moderat</option><option>Lav</option><option>Svært lav</option></select>';
+    addEditableListeners(newRow);
+    updateRiskNumbers();
+}
+
+
+// Add row above in risk table
+
+function addRowAbove() {
+    const insertIndex = selectedRowIndex === null ? table.rows.length : selectedRowIndex;
+    const newRow = table.insertRow(insertIndex);
+    const cell1 = newRow.insertCell(0);
+    const cell2 = newRow.insertCell(1);
+    const cell3 = newRow.insertCell(2);
+    const cell4 = newRow.insertCell(3);
+    cell1.textContent = insertIndex + 1;
+    cell2.contentEditable = "true";
+    cell3.innerHTML = '<select><option value="" disabled selected>Velg</option><option>Svært høy</option><option>Høy</option><option>Moderat</option><option>Lav</option><option>Svært lav</option></select>';
+    cell4.innerHTML = '<select><option value="" disabled selected>Velg</option><option>Svært høy</option><option>Høy</option><option>Moderat</option><option>Lav</option><option>Svært lav</option></select>';
+    addEditableListeners(newRow);
+    updateRiskNumbers();
+    selectRow(newRow); // Automatically select the new row
+}
+
+// Delete row in risk table
+
+function deleteRow() {
+      if (selectedRowIndex === null) {
+                alert("Velg en rad først");
+                return;
+      }
+      savePreviousState();
+      table.deleteRow(selectedRowIndex);
+      selectedRowIndex = null;
+      updateRiskNumbers();            
+}
+
+        function saveTable() {
+            const rows = [...table.rows].map(row => {
+                const cells = row.cells;
+                return {
+                    risikonummer: cells[0].textContent,
+                    uonskaHendelse: cells[1].textContent,
+                    konsekvens: cells[2].querySelector('select').value,
+                    hyppighet: cells[3].querySelector('select').value
+                };
+            });
+            const dataStr = JSON.stringify(rows, null, 2);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const fileName = prompt("Navn på filen:", "risikotabell.json");
+            if (fileName) {
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        function loadTable() {
+            document.getElementById('fileInput').click();
+        }
+
+        function loadFromFile(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+               try {
+                   const content = e.target.result;
+                   const rows = JSON.parse(content);
+                   clearAll(false);
+                   rows.forEach((row, index) => {
+                       const newRow = table.insertRow();
+                       const cell1 = newRow.insertCell(0);
+                       const cell2 = newRow.insertCell(1);
+                       const cell3 = newRow.insertCell(2);
+                       const cell4 = newRow.insertCell(3);
+                       cell1.textContent = index + 1;
+                       cell2.contentEditable = "true";
+                       cell3.innerHTML = '<select><option value="" disabled selected>Velg</option><option>Svært høy</option><option>Høy</option><option>Moderat</option><option>Lav</option><option>Svært lav</option></select>';
+                       cell4.innerHTML = '<select><option value="" disabled selected>Velg</option><option>Svært høy</option><option>Høy</option><option>Moderat</option><option>Lav</option><option>Svært lav</option></select>';
+                       cell2.textContent = row.uonskaHendelse;
+                       cell3.querySelector('select').value = row.konsekvens;
+                       cell4.querySelector('select').value = row.hyppighet;
+                       addEditableListeners(newRow);
+                   });
+                   updateRiskNumbers();
+               } catch (error) {
+                    alert("Kunne ikke lese filen. Kontroller at den er i riktig format.");
+               }
+            };
+            reader.readAsText(file);
+        }
+
+        function loadUonskaHendelser() {
+            document.getElementById('uonskaHendelserFileInput').click();
+        }
+
+        function loadUonskaHendelserFromFile(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+               try {
+                  const content = e.target.result;
+                  const uonskaHendelser = JSON.parse(content);
+                  uonskaHendelser.forEach((uonskaHendelse, index) => {
+                      if (index < table.rows.length) {
+                          table.rows[index].cells[1].textContent = uonskaHendelse.uonskaHendelse;
+                      } else {
+                          const newRow = table.insertRow();
+                          const cell1 = newRow.insertCell(0);
+                          const cell2 = newRow.insertCell(1);
+                          const cell3 = newRow.insertCell(2);
+                          const cell4 = newRow.insertCell(3);
+                          const rowIndex = table.rows.length;
+                          cell1.textContent = rowIndex + 1;
+                          cell2.contentEditable = "true";
+                          cell3.innerHTML = '<select><option value="" disabled selected>Velg</option><option>Svært høy</option><option>Høy</option><option>Moderat</option><option>Lav</option><option>Svært lav</option></select>';
+                          cell4.innerHTML = '<select><option value="" disabled selected>Velg</option><option>Svært høy</option><option>Høy</option><option>Moderat</option><option>Lav</option><option>Svært lav</option></select>';
+                          cell2.textContent = uonskaHendelse.uonskaHendelse;
+                          addEditableListeners(newRow);
+                      }
+                      table.rows[index].cells[2].querySelector('select').value = "Velg";
+                      table.rows[index].cells[3].querySelector('select').value = "Velg";
+                  });
+                  updateRiskNumbers();
+               } catch (error) {
+                    alert("Kunne ikke lese filen. Kontroller at den er i riktig format.");
+               }
+
+            };
+            reader.readAsText(file);
+        }
+
+
+        function undoAction() {
+            if (undoStack.length > 0) {
+                const previousState = undoStack.pop();
+                redoStack.push(JSON.stringify(getCurrentState()));
+                restoreState(previousState);
+                updateRiskNumbers();
+            }
+        }
+
+
+// Delete all rows in risk table
+
+function clearAll(saveState = true) {
+    if (saveState) {
+        savePreviousState();
+    }
+    while (table.rows.length > 0) {
+        table.deleteRow(0);
+    }
+    selectedRowIndex = null;
+
+}
+
+
+function savePreviousState() {
+     undoStack.push(JSON.stringify(getCurrentState()));
+     redoStack = [];
+}
+
+
+function getCurrentState() {
+    const consequenceRows = [...document.querySelectorAll("#consequenceScale tbody tr")].map(row => {
+        const cells = row.querySelectorAll("td");
+        return {
+            verdi: cells[0].textContent,
+            beskrivelse: cells[1].textContent
+        };
+    });
+
+    const frequencyRows = [...document.querySelectorAll("#frequencyScale tbody tr")].map(row => {
+        const cells = row.querySelectorAll("td");
+        return {
+            verdi: cells[0].textContent,
+            beskrivelse: cells[1].textContent
+        };
+    });
+
+    const riskTableRows = [...table.rows].map(row => {
+        const cells = row.cells;
+        return {
+            risikonummer: cells[0].textContent,
+            uonskaHendelse: cells[1].textContent,
+            konsekvens: cells[2].querySelector('select').value,
+            hyppighet: cells[3].querySelector('select').value
+        };
+    });
+
+    return {
+        consequences: consequenceRows,
+        frequencies: frequencyRows,
+        riskTable: riskTableRows
+    };
+}
+
+function restoreState(state) {
+    clearAll(false);
+    const { consequences, frequencies, riskTable } = JSON.parse(state);
+
+    // Restore consequenceScale without changing row count
+    const consequenceTable = document.querySelector("#consequenceScale tbody");
+    consequenceTable.querySelectorAll('tr').forEach((row, index) => {
+        if (index < consequences.length) {
+            row.cells[1].textContent = consequences[index].beskrivelse;
+        }
+    });
+
+    // Restore frequencyScale without changing row count
+    const frequencyTable = document.querySelector("#frequencyScale tbody");
+    frequencyTable.querySelectorAll('tr').forEach((row, index) => {
+        if (index < frequencies.length) {
+            row.cells[1].textContent = frequencies[index].beskrivelse;
+        }
+    });
+
+    // Restore riskTable
+    riskTable.forEach((row, index) => {
+        const newRow = table.insertRow();
+        const cell1 = newRow.insertCell(0);
+        const cell2 = newRow.insertCell(1);
+        const cell3 = newRow.insertCell(2);
+        const cell4 = newRow.insertCell(3);
+        cell1.textContent = index + 1;
+        cell2.contentEditable = "true";
+        cell3.innerHTML = '<select><option value="" disabled selected>Velg</option><option>Svært høy</option><option>Høy</option><option>Moderat</option><option>Lav</option><option>Svært lav</option></select>';
+        cell4.innerHTML = '<select><option value="" disabled selected>Velg</option><option>Svært høy</option><option>Høy</option><option>Moderat</option><option>Lav</option><option>Svært lav</option></select>';
+        cell2.textContent = row.uonskaHendelse;
+        cell3.querySelector('select').value = row.konsekvens;
+        cell4.querySelector('select').value = row.hyppighet;
+        addEditableListeners(newRow);
+    });
+
+    updateRiskNumbers();
+}
+
+function addEditableListeners(row) {
+    Array.from(row.cells).forEach(cell => {
+        if (cell.querySelector('select')) {
+            cell.querySelector('select').addEventListener('change', savePreviousState);
+        } else {
+            cell.addEventListener('focus', savePreviousState);
+            cell.addEventListener('input', savePreviousState);
+        }
+        row.addEventListener('click', () => selectRow(row));
+    });
+}
+       
+document.querySelectorAll('#consequenceScale tbody td[contenteditable="true"], #frequencyScale tbody td[contenteditable="true"]').forEach(cell => {
+    cell.addEventListener('focus', savePreviousState); // Capture the state when a cell is focused
+    cell.addEventListener('input', savePreviousState); // Capture the state on input changes
+});
+
+// Save initial state when the document loads
+document.addEventListener('DOMContentLoaded', () => {
+    savePreviousState();
+});
+
+document.querySelectorAll('#riskTable tbody tr').forEach(addEditableListeners);
+
+
+function updateRiskNumbers() {
+            [...table.rows].forEach((row, index) => {
+                row.cells[0].textContent = index + 1;
+            });
+}
+
+
+function selectRow(row) {
+    if (selectedRowIndex !== null) {
+        table.rows[selectedRowIndex].classList.remove('selected');
+    }
+    selectedRowIndex = row.rowIndex - 1;
+    row.classList.add('selected');
+    savePreviousState(); // Save state when a row is selected
+}
+
+
+    </script>
+</body>
+</html>

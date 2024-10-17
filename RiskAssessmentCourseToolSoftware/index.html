@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="no">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Verktøystøtte for kurs i risikovurdering</title>
+    <style>
+        /* Basic styling for tabs */
+        .tab {
+            display: flex;
+            cursor: pointer;
+            padding: 10px;
+            background-color: #f1f1f1;
+            border: 1px solid #ccc;
+            border-bottom: none;
+        }
+
+        .tabcontent {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-top: none;
+        }
+
+        .active {
+            display: block;
+        }
+
+        .tablinks {
+            margin-right: 5px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px 5px 0 0;
+            background-color: #ddd;
+        }
+
+        .tablinks.active {
+            background-color: #fff;
+            border-bottom: none;
+        }
+
+        .iframe-style {
+            width: 100%;
+            height: 500px;
+            border: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Verktøystøtte for kurs i risikovurdering</h2>
+
+    <div class="tab">
+        <button class="tablinks active" onclick="openTab(event, 'Fremgangsmåte')">Fremgangsmåte</button>
+        <button class="tablinks" onclick="openTab(event, 'Verditabell')">Verditabell</button>
+        <button class="tablinks" onclick="openTab(event, 'Sårbarhetstabell')">Sårbarhetstabell</button>
+        <button class="tablinks" onclick="openTab(event, 'Uønskahendelsetabell')">Uønskahendelsetabell</button>
+        <button class="tablinks" onclick="openTab(event, 'Risikotabell')">Risikotabell</button>
+        <button class="tablinks" onclick="openTab(event, 'Risikomatrise')">Risikomatrise</button>
+        <button class="tablinks" onclick="openTab(event, 'Behandlingstabell')">Behandlingstabell</button>
+        <button class="tablinks" onclick="terminateProgram()">Avslutt</button>
+    </div>
+
+    <div id="Fremgangsmåte" class="tabcontent active">
+        <iframe src="Fremgangsmåte/fremgangsmåte.html" class="iframe-style"></iframe>
+    </div>
+
+    <div id="Verditabell" class="tabcontent">
+        <iframe src="Verditabell/verditabell.html" class="iframe-style"></iframe>
+    </div>
+
+    <div id="Sårbarhetstabell" class="tabcontent">
+        <iframe src="Sårbarhetstabell/sårbarhetstabell.html" class="iframe-style"></iframe>
+    </div>
+
+    <div id="Uønskahendelsetabell" class="tabcontent">
+        <iframe src="Uønskahendelsetabell/uønskahendelsetabell.html" class="iframe-style"></iframe>
+    </div>
+
+    <div id="Risikotabell" class="tabcontent">
+        <iframe src="Risikotabell/risikotabell.html" class="iframe-style"></iframe>
+    </div>
+
+    <div id="Risikomatrise" class="tabcontent">
+        <iframe src="Risikomatrise/risikomatrise.html" class="iframe-style"></iframe>
+    </div>
+
+    <div id="Behandlingstabell" class="tabcontent">
+        <iframe src="Behandlingstabell/behandlingstabell.html" class="iframe-style"></iframe>
+    </div>
+
+    <div id="Avslutt" class="tabcontent">
+        <iframe src="Avslutt/avslutt.html" class="iframe-style"></iframe>
+    </div>
+
+    <script>
+	'use strict';
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+
+            // Hide all tab contents
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active");
+            }
+
+            // Remove active class from all tabs
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+
+            // Show the current tab and add active class
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+
+        function terminateProgram() {
+            // Attempt to close the window
+            if (confirm("Er du sikker på at du vil avslutte programmet?")) {
+                window.close();
+            }
+        }
+    </script>
+
+    <p>Sist oppdatert: 23. September 2024</p>
+
+</body>
+
+</html>
