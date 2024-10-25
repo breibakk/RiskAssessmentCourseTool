@@ -1,6 +1,6 @@
 # Risk Assessment Course Tool Support
 
-This repository contains the source code for a **Risk Assessment Course Support Tool** (`Verktøystøtte for kurs i risikovurdering`). The tool provides a series of interactive tables and procedures to help users conduct risk assessments, organize risk matrices, and make informed decisions based on vulnerability and event likelihood data. The following screendump 
+This repository contains the source code for a **Risk Assessment Course Support Tool** (`Verktøystøtte for kurs i risikovurdering`). The tool provides a series of interactive tables and procedures to help users conduct risk assessments, organize risk matrices, and make informed decisions based on vulnerability and event likelihood data. See screendump of the tool below:
 
 ![Model](https://github.com/breibakk/RiskAssessmentCourseTool/blob/main/20241025-tool-pic.png)
 
