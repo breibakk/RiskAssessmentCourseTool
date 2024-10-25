@@ -1,6 +1,8 @@
 # Risk Assessment Course Tool Support
 
-This repository contains the source code for a **Risk Assessment Course Support Tool** (`Verktøystøtte for kurs i risikovurdering`). The tool provides a series of interactive tables and procedures to help users conduct risk assessments, organize risk matrices, and make informed decisions based on vulnerability and event likelihood data.
+This repository contains the source code for a **Risk Assessment Course Support Tool** (`Verktøystøtte for kurs i risikovurdering`). The tool provides a series of interactive tables and procedures to help users conduct risk assessments, organize risk matrices, and make informed decisions based on vulnerability and event likelihood data. The following screendump 
+
+![Model](https://github.com/breibakk/RiskAssessmentCourseTool/blob/main/20241025-tool-pic.png)
 
 The tool has been developed within the project "Network for Cybersecurity and Innovation" financed by the Viken County Municipality in Norway. The project aims to disseminate cybersecurity competence and infrastructure available at the Institute for Energy Technology and Østfold University College to companies and institutions in the local area. The business associations in Fredrikstad and Sarpsborg are project partners.
 
